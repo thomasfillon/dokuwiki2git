@@ -8,6 +8,7 @@ import os
 import subprocess
 import sys
 import time
+import urllib
 
 USAGE = """
 dokuwiki2git converts dokuwiki data directory into a git repository containing
@@ -151,7 +152,8 @@ class Converter:
 					del changeparts[7]
 				log.debug(changeparts)
 				assert(len(changeparts) == 7)
-				assert(changeparts[3] == pagename)
+				assert(changeparts[3] == urllib.unquote(pagename))
+				changeparts[3] = pagename
 				assert(changeparts[2] in ('C', 'D', 'E', 'e', 'R')) # create, delete, edit, minor edit, restore
 				self.changelog.append(changeparts)
 
