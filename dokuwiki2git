@@ -86,11 +86,11 @@ class Converter:
 			if c[2] in ('C', 'E', 'e', 'R'): # create, edit, minor edit, restore
 				dirname = os.path.dirname(pagefile)
 				if len(dirname) > 0:
-					cmds.append((['mkdir', '-p', dirname], {}))
+					cmds.append((['mkdir', '-p', '--', dirname], {}))
 				cmds.append((['gunzip', '-c', filename], {'stdout': pagefile}))
-				cmds.append((['git', 'add', pagefile], {}))
+				cmds.append((['git', 'add', '--force', '--', pagefile], {}))
 			elif c[2] == 'D': # delete
-				cmds.append((['git', 'rm', '--quiet', pagefile], {'ignore_exit': True}))
+				cmds.append((['git', 'rm', '--quiet', '--', pagefile], {'ignore_exit': True}))
 			if cmds:
 				cmds.append((['git', 'commit', '--quiet', '--author={}'.format(author), '--date={} +0000'.format(timestamp), '-m', message], {'ignore_exit': True}))
 			self.commands.extend(cmds)
@@ -124,9 +124,9 @@ class Converter:
 				filename = os.path.relpath(fullfile, self.datadir)
 				dirname = os.path.dirname(filename)
 				cmds = [
-					(['mkdir', '-p', dirname], {}),
-					(['cp', fullfile, filename], {}),
-					(['git', 'add', filename], {})
+					(['mkdir', '-p', '--', dirname], {}),
+					(['cp', '--', fullfile, filename], {}),
+					(['git', 'add', '--force', '--', filename], {})
 				]
 				self.commands.extend(cmds)
 		self.commands.append((['git', 'commit', '--quiet', '--allow-empty', '--author=dokuwiki2git <dokuwiki2git@hoxu.github.com>', '-m', 'Import media files'], {}))
