@@ -30,6 +30,7 @@ class Converter:
 		self.commands = [] # commands to run to create the git repository
 		self.gitdir = 'gitdir'
 		self.users = {}
+		self.extension = '.txt'
 
 	def create_git_repository(self):
 		log.info('Creating git repository')
@@ -72,7 +73,7 @@ class Converter:
 
 			# depending on type of change, either add or remove
 			pagepath, timestamp = self.get_pagepath_and_timestamp(filename)
-			pagefile = pagepath + '.txt'
+			pagefile = pagepath + self.extension
 			message = pagepath + ': ' + c[5]
 			user = c[4]
 			email = 'dokuwiki@%s' % (c[1])
@@ -177,6 +178,7 @@ class Converter:
 		parser = optparse.OptionParser(usage = USAGE)
 		parser.add_option('-o', '--output', dest='outputdir', help='Create git directory at outputdir. Default is "gitdir"', default = 'gitdir')
 		parser.add_option('-q', '--quiet', action='store_const', const=0, dest='verbose', help='Show only warnings and errors')
+		parser.add_option('-e', '--extension', action='store', dest='extension', default=".txt", help='Output file extension for pages (default: ".txt")')
 		parser.add_option('-v', '--verbose', action='store_const', const=2, dest='verbose', help='Show debug messages', default=1)
 		(options, args) = parser.parse_args(params)
 		level = logging.WARN
@@ -184,6 +186,7 @@ class Converter:
 			level = (logging.WARN, logging.INFO, logging.DEBUG)[options.verbose]
 		log.setLevel(level)
 		self.gitdir = options.outputdir
+		self.extension = options.extension
 
 		time_start = time.time()
 		if len(args) == 0:
