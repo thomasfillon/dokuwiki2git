@@ -31,6 +31,7 @@ class Converter:
 		self.gitdir = 'gitdir'
 		self.users = {}
 		self.extension = '.txt'
+		self.convert = None
 
 	def create_git_repository(self):
 		log.info('Creating git repository')
@@ -89,6 +90,8 @@ class Converter:
 				if len(dirname) > 0:
 					cmds.append((['mkdir', '-p', '--', dirname], {}))
 				cmds.append((['gunzip', '-c', filename], {'stdout': pagefile}))
+				if self.convert:
+					cmds.append((['pandoc', '-f', 'dokuwiki', '-t', self.convert, '-o', pagefile, pagefile], {'ignore_exit': True}))
 				cmds.append((['git', 'add', '--force', '--', pagefile], {}))
 			elif c[2] == 'D': # delete
 				cmds.append((['git', 'rm', '--quiet', '--', pagefile], {'ignore_exit': True}))
@@ -179,6 +182,7 @@ class Converter:
 		parser.add_option('-o', '--output', dest='outputdir', help='Create git directory at outputdir. Default is "gitdir"', default = 'gitdir')
 		parser.add_option('-q', '--quiet', action='store_const', const=0, dest='verbose', help='Show only warnings and errors')
 		parser.add_option('-e', '--extension', action='store', dest='extension', default=".txt", help='Output file extension for pages (default: ".txt")')
+		parser.add_option('-c', '--convert', action='store', dest='convert', help='Convert output to this format using pandoc (default: None)')
 		parser.add_option('-v', '--verbose', action='store_const', const=2, dest='verbose', help='Show debug messages', default=1)
 		(options, args) = parser.parse_args(params)
 		level = logging.WARN
@@ -187,6 +191,7 @@ class Converter:
 		log.setLevel(level)
 		self.gitdir = options.outputdir
 		self.extension = options.extension
+		self.convert = options.convert
 
 		time_start = time.time()
 		if len(args) == 0:
