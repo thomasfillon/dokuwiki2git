@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Copyright (c) 2011-2014 Heikki Hokkanen <hoxu at users.sf.net>
 # License: AGPLv3
 import fnmatch
@@ -8,7 +8,7 @@ import os
 import subprocess
 import sys
 import time
-import urllib
+import urllib.parse
 
 USAGE = """
 dokuwiki2git converts dokuwiki data directory into a git repository containing
@@ -69,7 +69,7 @@ class Converter:
 			pagepath = c[3].replace(':', '/')
 			filename = os.path.join(self.atticdir, pagepath + '.%s.txt.gz' % c[0])
 			if not os.path.exists(filename):
-				log.warn('File "%s" does not exist, despite being in changelog, skipping' % filename)
+				log.warning('File "%s" does not exist, despite being in changelog, skipping' % filename)
 				continue
 
 			# depending on type of change, either add or remove
@@ -152,14 +152,14 @@ class Converter:
 			return
 		pagename = pagepath.replace('/', ':')
 		log.debug('Reading meta for page "%s"' % pagename)
-		with open(fullpath, 'rb') as f:
+		with open(fullpath, 'r') as f:
 			for line in f:
 				changeparts = line.split('\t')
 				if len(changeparts) == 8:
 					del changeparts[7]
 				log.debug(changeparts)
 				assert(len(changeparts) == 7)
-				assert(changeparts[3] == urllib.unquote(pagename))
+				assert(changeparts[3] == urllib.parse.unquote(pagename))
 				changeparts[3] = pagename
 				assert(changeparts[2] in ('C', 'D', 'E', 'e', 'R')) # create, delete, edit, minor edit, restore
 				self.changelog.append(changeparts)
@@ -168,7 +168,7 @@ class Converter:
 		log.info('Reading users.auth.php')
 		parentdir = os.path.abspath(os.path.join(self.datadir, os.pardir))
 		users_file = os.path.join(parentdir, 'conf', 'users.auth.php')
-		with open(users_file, 'rb') as f:
+		with open(users_file, 'r') as f:
 			for line in f:
 				if not line.startswith("#") and len(line) > 1:
 					userparts = line.split(':')
